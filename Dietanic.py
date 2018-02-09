@@ -1,26 +1,3 @@
-
-# coding: utf-8
-
-# # Titanic Survival Prediction
-# 
-# ### Contents:
-# 
-# 1. Import necessary libraries
-# 2. Read in and Explore the data
-# 3. Data Analysis
-# 4. Data Visualization
-# 5. Cleaning the data
-# 6. Choosing the Best Model
-# 7. Creating the submission file
-# 
-# feedback is welcome!
-
-# ## 1) Import Necessary Libraries
-# Importing several python libraries like numpy, pandas, matplotlib and seaborn
-# 
-
-# In[248]:
-
 #data analysis libraries 
 import numpy as np
 import pandas as pd
@@ -34,24 +11,12 @@ get_ipython().magic('matplotlib inline')
 import warnings
 warnings.filterwarnings('ignore')
 
-
-# ## 2) Read in and Explore the data
-# Reading our training and testing data and taking a look at the training data using `describe()` function
-
-# In[249]:
-
 #import train and test CSV files
 train = pd.read_csv("input/train.csv")
 test = pd.read_csv("input/test.csv")
 
 #take a look at the training data
 train.describe(include="all")
-
-
-# ## 3) Data Analysis
-# Looking into the usefulness of the features provided in the dataset
-
-# In[250]:
 
 #list of the features within the dataset
 print(train.columns)
@@ -74,13 +39,9 @@ print(train.columns)
 # * Cabin: string
 # * Embarked: string
 
-# In[251]:
 
 #looking into sample of the dataset to get an idea of the variables
 train.sample(5)
-
-
-# In[252]:
 
 #summary of the training dataset
 train.describe(include = "all")
@@ -98,7 +59,6 @@ train.describe(include = "all")
 # * Embarked:0.22%
 #  **conclusion:** this feature will also be taken into account
 
-# In[253]:
 
 #checking for any other unusable values
 print(pd.isnull(train).sum())
@@ -115,7 +75,6 @@ print(pd.isnull(train).sum())
 
 # ### Sex Feature
 
-# In[254]:
 
 #drawing a bar plot of survival by sex
 sns.barplot(x="Sex", y="Survived", data=train)
@@ -129,8 +88,6 @@ print("Percentage of males who survived:", train["Survived"][train["Sex"] == 'ma
 # As predicted earlier females have a much higher chance of survival than males. Thus we conclude that sex feature is essential in our predictions.
 
 # ### Pclass Feature
-
-# In[255]:
 
 #drawing a bar plot of survival by Pclass
 sns.barplot(x="Pclass", y="Survived", data=train)
@@ -147,8 +104,6 @@ print("Percentage of Pclass = 3 who survived:", train["Survived"][train["Pclass"
 
 # ### SibSp Feature
 
-# In[256]:
-
 #drawing a bar plot for SibSp vs. survival
 sns.barplot(x="SibSp", y="Survived", data=train)
 
@@ -160,8 +115,6 @@ print("Percentage of SibSp = 2 who survived:", train["Survived"][train["SibSp"] 
 
 
 # ### Parch Feature
-
-# In[257]:
 
 #drawing a bar plot for Parch vs. survival
 sns.barplot(x="Parch", y="Survived", data=train)
@@ -193,8 +146,6 @@ plt.show()
 
 # Those who have recorded cabin numbers are of higher socioeconomic class and thus more likely to survive
 
-# In[259]:
-
 train["CabinBool"] = (train["Cabin"].notnull().astype('int'))
 test["CabinBool"] = (test["Cabin"].notnull().astype('int'))
 
@@ -213,21 +164,16 @@ plt.show()
 
 # ### Looking into test data
 
-# In[260]:
 
 test.describe(include="all")
 
 
 # ### Cabin Feature
 
-# In[261]:
 
 #dropping the Cabin feature since not a lot more useful information can be extracted from it.
 train = train.drop(['Cabin'], axis = 1)
 test = test.drop(['Cabin'], axis = 1)
-
-
-# In[262]:
 
 #droping the Ticket feature since it's unlikely to yield any useful information
 train = train.drop(['Ticket'], axis = 1)
@@ -235,8 +181,6 @@ test = test.drop(['Ticket'], axis = 1)
 
 
 # ### Embarked Feature
-
-# In[263]:
 
 #filling in the missing values in the Embarked feature
 print("Number of people embarking in Southampton (S):")
@@ -254,15 +198,11 @@ print(queenstown)
 
 # Since majoirity of people were from southhampton, we will fill in missing values with S
 
-# In[264]:
-
 #replacing the missing values in the Embarked feature with S
 train = train.fillna({"Embarked": "S"})
 
 
 # ### Age Feature
-
-# In[265]:
 
 #creating a combined group of both datasets
 combine = [train, test]
@@ -272,9 +212,6 @@ for dataset in combine:
     dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
 
 pd.crosstab(train['Title'], train['Sex'])
-
-
-# In[266]:
 
 #replacing various titles with more common names
 for dataset in combine:
@@ -289,8 +226,6 @@ for dataset in combine:
 train[['Title', 'Survived']].groupby(['Title'], as_index=False).mean()
 
 
-# In[267]:
-
 #mapping each of the title groups to a numerical value
 title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Royal": 5, "Rare": 6}
 for dataset in combine:
@@ -299,8 +234,6 @@ for dataset in combine:
 
 train.head()
 
-
-# In[268]:
 
 # filling missing age with mode age group for each title
 mr_age = train[train["Title"] == 1]["AgeGroup"].mode() #Young Adult
@@ -322,8 +255,6 @@ for x in range(len(test["AgeGroup"])):
         test["AgeGroup"][x] = age_title_mapping[test["Title"][x]]
 
 
-# In[269]:
-
 #mapping each Age value to a numerical value
 age_mapping = {'Baby': 1, 'Child': 2, 'Teenager': 3, 'Student': 4, 'Young Adult': 5, 'Adult': 6, 'Senior': 7}
 train['AgeGroup'] = train['AgeGroup'].map(age_mapping)
@@ -336,16 +267,12 @@ train = train.drop(['Age'], axis = 1)
 test = test.drop(['Age'], axis = 1)
 
 
-# In[270]:
-
 #dropping the name feature since it contains no more useful information.
 train = train.drop(['Name'], axis = 1)
 test = test.drop(['Name'], axis = 1)
 
 
 # ### Sex Feature
-
-# In[271]:
 
 #mapping each Sex value to a numerical value
 sex_mapping = {"male": 0, "female": 1}
@@ -357,8 +284,6 @@ train.head()
 
 # ### Embarked Feature
 
-# In[272]:
-
 #mapping each Embarked value to a numerical value
 embarked_mapping = {"S": 1, "C": 2, "Q": 3}
 train['Embarked'] = train['Embarked'].map(embarked_mapping)
@@ -368,8 +293,6 @@ train.head()
 
 
 # ### Fare Feature
-
-# In[273]:
 
 #filling in missing Fare value in test set based on mean fare for that Pclass 
 for x in range(len(test["Fare"])):
@@ -386,15 +309,11 @@ train = train.drop(['Fare'], axis = 1)
 test = test.drop(['Fare'], axis = 1)
 
 
-# In[274]:
 
-#check train data
+#checking train data
 train.head()
 
-
-# In[275]:
-
-#check test data
+#checking test data
 test.head()
 
 
@@ -402,8 +321,6 @@ test.head()
 
 # ### Splitting the Training data
 # We will use part of our training data (22%) to test the accuracy of our different models
-
-# In[276]:
 
 from sklearn.model_selection import train_test_split
 
@@ -427,8 +344,6 @@ x_train, x_val, y_train, y_val = train_test_split(predictors, target, test_size 
 # For each model, we fit it with 80% of training data and predict for 20% of the training data and check the accuracy
 # 
 
-# In[278]:
-
 # Gaussian Naive Bayes
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score
@@ -440,8 +355,6 @@ acc_gaussian = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_gaussian)
 
 
-# In[279]:
-
 # Logistic Regression
 from sklearn.linear_model import LogisticRegression
 
@@ -451,9 +364,6 @@ y_pred = logreg.predict(x_val)
 acc_logreg = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_logreg)
 
-
-# In[280]:
-
 # Support Vector Machines
 from sklearn.svm import SVC
 
@@ -462,9 +372,6 @@ svc.fit(x_train, y_train)
 y_pred = svc.predict(x_val)
 acc_svc = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_svc)
-
-
-# In[281]:
 
 # Linear SVC
 from sklearn.svm import LinearSVC
@@ -476,8 +383,6 @@ acc_linear_svc = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_linear_svc)
 
 
-# In[282]:
-
 # Perceptron
 from sklearn.linear_model import Perceptron
 
@@ -487,8 +392,6 @@ y_pred = perceptron.predict(x_val)
 acc_perceptron = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_perceptron)
 
-
-# In[283]:
 
 #Decision Tree
 from sklearn.tree import DecisionTreeClassifier
@@ -500,8 +403,6 @@ acc_decisiontree = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_decisiontree)
 
 
-# In[284]:
-
 # Random Forest
 from sklearn.ensemble import RandomForestClassifier
 
@@ -511,8 +412,6 @@ y_pred = randomforest.predict(x_val)
 acc_randomforest = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_randomforest)
 
-
-# In[285]:
 
 # KNN or k-Nearest Neighbors
 from sklearn.neighbors import KNeighborsClassifier
@@ -524,8 +423,6 @@ acc_knn = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_knn)
 
 
-# In[286]:
-
 # Stochastic Gradient Descent
 from sklearn.linear_model import SGDClassifier
 
@@ -535,8 +432,6 @@ y_pred = sgd.predict(x_val)
 acc_sgd = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_sgd)
 
-
-# In[287]:
 
 # Gradient Boosting Classifier
 from sklearn.ensemble import GradientBoostingClassifier
@@ -548,7 +443,6 @@ acc_gbk = round(accuracy_score(y_pred, y_val) * 100, 2)
 print(acc_gbk)
 
 
-# In[288]:
 
 models = pd.DataFrame({
     'Model': ['Support Vector Machines', 'KNN', 'Logistic Regression', 
